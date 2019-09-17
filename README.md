@@ -1,2 +1,0 @@
-# comp_cien
-Métodos
