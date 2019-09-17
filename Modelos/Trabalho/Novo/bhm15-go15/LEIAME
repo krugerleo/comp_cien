@@ -1,0 +1,39 @@
+Use:
+	$export PATH=/home/soft/likwid/bin:/home/soft/likwid/sbin:$PATH
+	$export LD_LIBRARY_PATH=/home/soft/likwid/lib:$LD_LIBRARY_PATH
+	$likwid-perfctr -f -C 0 -g CACHE ./cgSolver 1000 9 -i 10 -o saida2.txt
+
+
+Trabalho 1 de Introdução à Computação Científica (CI-164), realizado pelos alunos:
+Bruno H. Meyer (GRR 20151346);
+Gabriel Olescki (GRR 20158388),
+ambos do curso de Informática Biomédica.
+
+
+#Lista de arquivos:
+
+	LEIAME: Breve descrição do algoritmo e particularidades do código.
+	Makefile: Arquivo Makefile, feito para gerar o executável do programa (comando make) e também para limpar os arquivos temporários (comando make clean).
+	cgSolver.c: Arquivo do código principal, dentro dele encontra-se uma série de funções que, em conjunto, geram o resultado esperado.
+
+
+# Estrutura de dados:
+
+	A matriz de bandas, gerada utilizando a função geraMatriz, é armazenada em uma matriz N por bandas, onde N é o tamanho do sistema linear e bandas é o número de bandas, ambos são descritos na chamada do programa.
+	Foi utilizado como inspiração, a representação matricial de matrizes esparsas vista na referência do trabalho (https://en.wikipedia.org/wiki/Band_matrix). Apesar do programa lidar com matrizes simétricas, foi escolhido o tratamento de tais matrizes como esparsas genéricas para facilitar a implementação da operação de sua multiplicação por um vetor e também para melhorar a legibilidade do código. Como consequência dessa escolha, é conhecida a perda de eficiência pois se trata de uma matriz simétrica, logo tudo que está acima da diagonal principal é igual ao que está abaixo, o que causa a necessidade do dobro de memória para armazenar a matriz e o custo do dobro de operações em alguns cálculos comparado ao que é realmente necessário (esta foi uma alternativa de implementação considerada, mas como já foi descrito, preferimos optar pela legibilidade do código).
+	Um dos problemas encontrados na implementação foi a característica da função geraMatriz, onde são gerados os vetores, das diagonais de nossa matriz esparsa, de tamanho N-K, onde K é a “distância” entre a diagonal gerada e a principal. Porém em nossa representação, cada linha da matriz havia tamanho N (onde K elementos eram 0.0). Também foi necessário copiar cada linha gerada (com exceção da diagonal principal) para copiar em sua posição simétrica. Contornamos esse problema inicializando as diagonais com valores 0.0 e fazendo a cópia com as devidas alterações, como indica a referência. Outro motivo da representação escolhida é a baixa quantidade de memória no sistema bandas X N (crescimento linear em função do número de bandas) usada em relação a sua representação geral em memória que tem crescimento em função de NxN, ou seja, ordem exponencial. Isso possibilita a solução de matrizes altamente esparsas. Exemplo : matrizes 10^6 x 10^6  de bandas K necessitam de 10^12* sizeof(double) bytes de memória, já em nossa representação o sistema necessita apenas de K*10^6 bytes, onde K < N.
+	Uma vez que estamos representando matrizes quadradas de forma retangular, precisávamos pensar em uma maneira de realizar a multiplicação dessa matriz por um vetor. Para isso foi implementado a função multiplicaMatrizDeBandaPorVetor, que percorre toda a matriz e, de acordo com a posição atual o algoritmo deduzirá qual a posição correta do vetor X que deverá ser feita a multiplicação, mesmo quando inexistente.
+	Para facilitar o cálculo do tempo, criamos uma struct (tempo) e um método (atualizaEstruturaTempo) para simplificar a legibilidade do código.
+	OBS: O cálculo do tempo do resíduo está dentro da iteração do algoritmo do GC(Gradiente Conjugado), o que pode ocasionar prejuízos no cálculo do tempo de cada iteração do GC.
+
+
+# Algoritmo:
+A função principal conta com os passos de:
+-Gerar uma matriz
+-Gerar o vetor de termos independentes
+-Resolver o sistema com gradiente Conjugado, que imprime os resultados da especificação do trabalho em um arquivo
+
+O gradiente conjugado conta com operações de : soma de vetores, multiplicação de vetores e multiplicação de matrizes de banda por vetores, onde as duas primeiras operam vetores de mesmo tamanho, enquanto a ultima multiplica a matriz (bandas X N) e um vetor de tamanho N.
+
+# Bugs conhecido:
+	Caso não haja o parâmetro de tolerância ela será setada para -1, logo o GC nunca será retornado para condição de parada referente à tolerância. Então, ele retornará no número máximo de iterações, que se caso seja muito grande, eventualmente algumas variáveis usadas para divisão nas operações dentro do cálculo do gradiente conjugado serão muito pequenas (muito próximas de 0) ocasionando uma divisão por zero, logo o nosso vetor resposta retornaria nan. Para contornar esse erro nós utilizamos o método dado em sala do FLT_EPSILON, é feita a comparação dessas possíveis divisões por zero antes da operação, caso ocorra, o programa sai retornando uma mensagem de erro.

@@ -1,0 +1,2 @@
+Rode com:
+ likwid-perfctr -m -f -C 0 -g CACHE ./main < entrada
