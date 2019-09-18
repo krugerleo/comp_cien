@@ -49,7 +49,7 @@ double func_3 (double x)
 {
   if (x < 0.0)
     return (-3.0 *pow((-x), 1.0/3.0));
-  else	
+  else
     return (3.0 *pow(x, 1.0/3.0));
 }
 
@@ -78,10 +78,9 @@ int main ()
 
   // Fazer cálculos e mostrar tabelas
   // Imprime cabeçalho da tabela
-  printf("#=============================================================================\n");
-  printf("# metodo      ,raiz     ,erro    ,it     tempo(ms)\n");
-  printf("#=============================================================================\n");
-
+ // printf("#=============================================================================\n");
+ // printf("# metodo      ,raiz     ,erro    ,it     tempo(ms)\n");
+ // printf("#=============================================================================\n");
 
   // Imprimir média real e calculada em vetor de valores reais
   printf("# ==============================================================================\n");
@@ -99,11 +98,12 @@ int main ()
   }
   tempo = timestamp();
   media_vec = media(vector, vec_size);
+  //media_vec /= vec_size;
   tempo  = timestamp() - tempo;
   printf("                %+10.6e, %+10.6e, %+10.6e, %5.3e\n", media_vec, media_real, fabs(media_real-media_vec), tempo);
 
   printf("# ==============================================================================\n");
-    
+
 
   free(vector);
 
