@@ -57,6 +57,9 @@ void gauss(float dados[3][3],float *valores,unsigned int tam){
 
 int main() {
     double *x,*y;
+	float soma1,soma2;
     double **mtx = geraMatrizEscalonada(x,y);
     retrosub(mtx,y,N);
+	puts("re");
+
 }
